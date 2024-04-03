@@ -7,29 +7,51 @@ export const sendMessage = async (req, res) => {
     const { id: recieverId } = req.params;
     const senderId = req.user._id;
 
-    let converstion = await Conversation.findOne({
+    let conversation = await Conversation.findOne({
       participants: { $all: [recieverId, senderId] },
     });
 
-    if (!converstion) {
-      converstion = await Conversation.create({
+    if (!conversation) {
+      conversation = await Conversation.create({
         participants: [recieverId, senderId],
       });
     }
 
-    const messages = new Message({
+    const newMessage = new Message({
       recieverId,
       senderId,
       message,
     });
 
-    if (message) {
-      converstion.messages.push(message._id);
+    if (newMessage) {
+      conversation.messages.push(newMessage._id);
     }
 
-    res.status(200).json(message);
+    await Promise.all([conversation.save(), newMessage.save()]);
+
+    res.status(200).json(newMessage);
   } catch (error) {
-    console.log("Error form messageController", error.message);
-    res.send(500).json({ error: "Internal server error" });
+    console.log("Error form setMessage controller", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getMessage = async (req, res) => {
+  try {
+    const { id: userToChat } = req.params;
+    const userId = req.user._id;
+
+    const converstion = await Conversation.findOne({
+      participants: { $all: [userId, userToChat] },
+    }).populate("messages");
+
+    if (!converstion) res.status(200).json([]);
+
+    const messages = converstion.messages;
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log("Error form getMessage controller", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
