@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Login = () => {
   return (
     <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
@@ -28,12 +30,12 @@ const Login = () => {
               className="w-full input input-bordered h-10"
             />
           </div>
-          <a
-            href="#"
-            className="text-sm hover:underline hover:text-blue-600 mt-2 inline-block"
+          <Link
+            to={"/signup"}
+            clLinkssName="text-sm hover:underline hover:text-blue-600 mt-2 inline-block"
           >
             {"Don't"} have an account?
-          </a>
+          </Link>
 
           <div className="btn btn-block btn-sm mt-2">Login</div>
         </form>
